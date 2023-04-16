@@ -9,20 +9,45 @@ fn main() {
         return;
     }
 
-    match process(&args[1]) {
-        Ok(()) => return,
+    match part_1(&args[1]) {
+        Ok(result) => println!("{}", result),
+        Err(msg) => eprintln!("Error encountered: {}", msg)
+    }
+
+    match part_2(&args[1]) {
+        Ok(result) => println!("{}", result),
         Err(msg) => eprintln!("Error encountered: {}", msg)
     }
 }
 
-fn process(filename: &str) -> Result<(), Error> {
+fn part_1(filename: &str) -> Result<i32, Error> {
+    let calories = get_calories_list(filename)?;
+
+    let max = calories.iter().max().expect("calories can never be empty");
+    Ok(*max)
+}
+
+fn part_2(filename: &str) -> Result<i32, Error> {
+    let mut calories = get_calories_list(filename)?;
+    calories.sort();
+
+    let mut sum = 0;
+    let i = calories.len();
+    for j in 1..4 { // the range is end exclusive!
+        sum += calories[i - j];
+    }
+
+    Ok(sum)
+}
+
+fn get_calories_list(filename: &str) -> Result<Vec<i32>, Error> {
     let input = fs::read_to_string(filename)?;
     let lines: Vec<&str> = input.lines().collect();
 
-    let mut calories: Vec<usize> = vec![0];
+    let mut calories: Vec<i32> = vec![0];
 
     for line in lines {
-        let calorie: usize = line.parse().unwrap_or_else(|_e| {
+        let calorie: i32 = line.parse().unwrap_or_else(|_e| {
             calories.push(0);
             0
         });
@@ -31,8 +56,5 @@ fn process(filename: &str) -> Result<(), Error> {
         *last += calorie;
     }
 
-    let max = calories.iter().max().expect("calories can never be empty");
-    println!("{max}");
-
-    Ok(())
+    Ok(calories)
 }
