@@ -46,9 +46,8 @@ fn solve_2(filename: &str) -> Result<i32, Box<dyn Error>> {
     let input = fs::read_to_string(filename)?;
     let mut score = 0;
     for line in input.lines() {
-        let mut chars = line.chars();
-        let opponent_move = chars.nth(0).expect("Should have opponent's move");
-        let strategy = chars.nth(1).expect("Should have the strategy.");
+        let opponent_move = line.chars().nth(0).expect("Should have opponent's move");
+        let strategy = line.chars().nth(2).expect("Should have the strategy.");
 
         score += match strategy {
             'X' => 0 + match opponent_move {
