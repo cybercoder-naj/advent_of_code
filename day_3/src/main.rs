@@ -12,9 +12,9 @@ fn main() {
         Err(message) => eprintln!("An error occured: {}", message)
     }
 
-    match solve_2(&args[0]) {
+    match solve_2(&args[1]) {
         Ok(result) => println!("{}", result),
-        Err(message) => eprintln!("An error occured: {}", message)
+        Err(message) => eprintln!("An error occconvert chars to set rustured: {}", message)
     }
 }
 
@@ -33,15 +33,11 @@ fn solve_1(filename: &str) -> Result<i32, &'static str> {
 
     let mut score = 0;
     for rucksack in rucksacks {
-        'outer:
-        for comp1 in rucksack.0.chars() {
-            for comp2 in rucksack.1.chars() {
-                if comp1 == comp2 {
-                    score += convert_to_score(comp1);
-                    break 'outer;
-                }
-            }
-        }
+        let mut first_set: BTreeSet<char> = rucksack.0.chars().collect();
+        let second_set: BTreeSet<char> = rucksack.1.chars().collect();
+
+        first_set.retain(|e| second_set.contains(e));
+        score += convert_to_score(*first_set.first().unwrap())
     }
 
     Ok(score)
@@ -58,30 +54,19 @@ fn solve_2(filename: &str) -> Result<i32, &'static str> {
     let mut vec: Vec<BTreeSet<char>> = vec![];
     let mut score = 0;
     for i in 0..lines.len() {
-        match i % 3 {
-            2 => {
-                let mut set: BTreeSet<char> = BTreeSet::new();
-                lines[i].chars().for_each(|c| { set.insert(c); });
-
-                vec.push(set);
-
-                let (intersection, others) = vec.split_at_mut(1);
-                let intersection = &mut intersection[0];
-                for other in others {
-                    intersection.retain(|e| other.contains(e));
-                }
-
-                let chrs = intersection.first().unwrap();
-                score += convert_to_score(*chrs);
-
-                vec.clear();
-            },
-            _ => {
-                let mut set: BTreeSet<char> = BTreeSet::new();
-                lines[i].chars().for_each(|c| { set.insert(c); });
-
-                vec.push(set);
+        let set: BTreeSet<char> = lines[i].chars().collect();
+        vec.push(set);
+        if i % 3 == 2 {
+            let (intersection, others) = vec.split_at_mut(1);
+            let intersection = &mut intersection[0];
+            for other in others {
+                intersection.retain(|e| other.contains(e));
             }
+
+            let chrs = intersection.first().unwrap();
+            score += convert_to_score(*chrs);
+
+            vec.clear();
         }
     }
 
